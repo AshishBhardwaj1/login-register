@@ -31,7 +31,7 @@
 //         const user =await User.findOne({username})
 //         if (!user) {
 //             return res.status(401).json({error:"invalidusernameorpassord"})
-            
+
 //         }
 //         if (user.password !== password){
 //             return res.status(401).json({error:"invalidpassword"})
@@ -43,56 +43,66 @@
 // })
 //         connectDb()
 
-
-const express = require('express');
+const express = require("express");
+const fs = require("fs");
 const app = express();
 const port = 8000;
-const connectDB = require('./db/db');
-const User = require('./db/user');
-const cors = require('cors');
+const cors = require("cors");
 
-//Middleware for parsing JSON
+// Middleware for parsing JSON
 app.use(express.json());
 
-//Enable CORS
-app.use(cors())
+// Enable CORS
+app.use(cors());
 
-//Registration
-app.post('/register',async(req,res) => {
-    try{
-        const {username,password} = req.body;
-        console.log(req.body)
-        const user = new User({username,password});
-        await user.save();
-        res.status(201).json({message:'Registration Successful'});
-    }
-    catch(error){
-        res.status(500).json({error:'Registration failed'});
-    }
-})
+// File path to store user data
+const userDataPath = "./user_data.json";
 
+// Registration
+app.post("/register", (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const userData = { username, password };
+
+    // Read existing data from file
+    let existingData = [];
+    try {
+      const data = fs.readFileSync(userDataPath, "utf8");
+      existingData = JSON.parse(data);
+    } catch (error) {
+      console.error("Error reading user data file:", error);
+    }
+
+    // Add new user data
+    existingData.push(userData);
+
+    // Write updated data back to file
+    fs.writeFileSync(userDataPath, JSON.stringify(existingData, null, 2));
+
+    res.status(201).json({ message: "Registration Successful" });
+  } catch (error) {
+    res.status(500).json({ error: "Registration failed" });
+  }
+});
 //Login
-app.post('/login',async(req,res)=>{
-    try{
-        const {username,password} = req.body;
-        const user = await User.findOne({username});
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
 
-        if(!user){
-            return res.status(401).json({error:'Invalid username or Password'});
-        }
-
-        if(user.password !== password){
-            return res.status(401).json({error:'Invalid username or password'});
-        }
-        res.status(200).json({message:'Login successful'})
+    if (!user) {
+      return res.status(401).json({ error: "Invalid username or Password" });
     }
-    catch(error){
-        res.status(500).json({error:'Login failed'})
+
+    if (user.password !== password) {
+      return res.status(401).json({ error: "Invalid username or password" });
     }
-})
+    res.status(200).json({ message: "Login successful" });
+  } catch (error) {
+    res.status(500).json({ error: "Login failed" });
+  }
+});
 
-connectDB();
-
-app.listen(port,()=> {
- console.log('Server is listening on Post 8000')
+app.listen(port, () => {
+  console.log("Server is listening on Post 8000");
 });
