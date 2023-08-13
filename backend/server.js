@@ -102,11 +102,11 @@ app.post("/login", (req, res) => {
     const user = userData.find((user) => user.username === username);
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid username or Password" });
+      return res.json({ error: "Invalid username" });
     }
 
     if (user.password !== password) {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.json({ error: "Invalid password" });
     }
 
     res.status(200).json({ message: "Login successful" });

@@ -26,13 +26,13 @@ export default function LoginPage() {
         loginData
       );
       const { message } = response.data; // No 'success' field needed, just the message
-      setLoginMessage(message.toString()); // Set the login message
+      setLoginMessage(message); // Set the login message
 
       if (message === "Login successful") {
         // Handle successful login here, such as redirecting to another page
         setLoginMessage("Login successfull");
       } else {
-        setLoginMessage("Login failed");
+        setLoginMessage("Login failed inavlid username or pass");
       }
     } catch (error) {
       setLoginMessage(error.toString());
