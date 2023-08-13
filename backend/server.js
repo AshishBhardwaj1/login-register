@@ -84,11 +84,22 @@ app.post("/register", (req, res) => {
     res.status(500).json({ error: "Registration failed" });
   }
 });
-//Login
-app.post("/login", async (req, res) => {
+
+app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await User.findOne({ username });
+
+    // Read user data from file
+    let userData = [];
+    try {
+      const data = fs.readFileSync(userDataPath, "utf8");
+      userData = JSON.parse(data);
+    } catch (error) {
+      console.error("Error reading user data file:", error);
+    }
+
+    // Find user by username
+    const user = userData.find((user) => user.username === username);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid username or Password" });
@@ -97,6 +108,7 @@ app.post("/login", async (req, res) => {
     if (user.password !== password) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
+
     res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(500).json({ error: "Login failed" });

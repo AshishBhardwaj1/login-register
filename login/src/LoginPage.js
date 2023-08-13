@@ -7,6 +7,9 @@ export default function LoginPage() {
     username: "",
     password: "",
   });
+
+  const [loginMessage, setLoginMessage] = useState(""); // Added state for login message
+
   const handleLogin = (e) => {
     const { name, value } = e.target;
     setLoginData((prevData) => ({
@@ -14,6 +17,7 @@ export default function LoginPage() {
       [name]: value,
     }));
   };
+
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -21,23 +25,28 @@ export default function LoginPage() {
         "http://localhost:8000/login",
         loginData
       );
-      const { success, message } = response.data;
-      if (success) {
-        console.log("login suuceefully");
+      const { message } = response.data; // No 'success' field needed, just the message
+      setLoginMessage(message.toString()); // Set the login message
+
+      if (message === "Login successful") {
+        // Handle successful login here, such as redirecting to another page
+        setLoginMessage("Login successfull");
       } else {
-        console.log(message);
+        setLoginMessage("Login failed");
       }
     } catch (error) {
-      console.log(error);
+      setLoginMessage(error.toString());
     }
     setLoginData({
       username: "",
       password: "",
     });
   }
+
   return (
     <div>
       <h1>Login page</h1>
+      <h1>{loginMessage}</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
